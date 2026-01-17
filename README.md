@@ -1,61 +1,103 @@
-# BioLogistics: Metabolic Flux Optimization for Fungal Fermentation
+# BioLogistics: Metabolic Flux Optimization
 
-## 📌 Executive Summary
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![SciPy](https://img.shields.io/badge/SciPy-Optimization-orange)
+![Status](https://img.shields.io/badge/Status-Prototype-green)
 
-This project applies **Constrained Optimization** and **Linear Programming**—principles I previously used to optimize last-mile delivery algorithms —to the biological challenge of fungal fermentation in *Fusarium venenatum*. By treating the metabolic network of a fungus as a high-efficiency logistics system, this model identifies the optimal "routing" of nutrients to maximize biomass production while minimizing byproduct waste.
+## 📖 Project Overview
+**BioLogistics** is a computational model that treats a biological cell as a high-efficiency logistics network. 
 
-## 🧬 The Problem: Logistics vs. Biology
+Drawing on my background in **Product Management and Supply Chain Optimization** (where I improved order fulfillment rates from 50% to 73%), this project applies **Linear Programming** to solve a fundamental problem in biotechnology: **Metabolic Flux Analysis (MFA)**.
 
-In industrial fermentation (like Quorn's), the fungus must grow in a "meaty" pattern rather than a "crumbly" one.
+Instead of optimizing truck routes for a delivery startup, this model optimizes chemical "routes" (fluxes) inside the fungus *Fusarium venenatum* to maximize biomass production.
 
-* 
-**In Logistics:** We optimize truck routes to increase fulfillment rates (e.g., my work at Nobaar improving fulfillment from 50% to 73%).
+---
 
+## 💡 The Core Concept: The "Cell Factory" Analogy
+To understand the biology, I mapped it to a standard industrial logistics framework:
 
-* **In Biology:** We optimize metabolic "routes" (fluxes) to increase biomass yield.
+| Biological Term | Logistics/Business Equivalent |
+| :--- | :--- |
+| **Metabolite** (e.g., Glucose) | **Warehouse / Inventory Hub** |
+| **Reaction** (Enzyme) | **Production Line / Delivery Route** |
+| **Flux ($v$)** | **Throughput Rate** (e.g., units per hour) |
+| **Stoichiometric Matrix ($S$)** | **Network Routing Map** |
+| **Biomass Growth** | **Revenue / KPI Target** |
 
-This repository provides a Python-based **Flux Balance Analysis (FBA)** tool that simulates how different environmental inputs affect the fungus's internal "delivery network."
+---
 
-## 🔢 Mathematical Framework
+## 🔢 Mathematical Framework (Step-by-Step)
+This model uses **Constraint-Based Modeling** to predict the behavior of the cell without needing complex kinetic parameters. We solve for the optimal flow of resources using the following steps:
 
-The model is built on the following mathematical foundations of systems biology:
+### Step 1: The Network Map ($S$)
+We define the system using a **Stoichiometric Matrix ($S$)**. 
+* **Rows ($m$)**: Represent the internal "warehouses" (Metabolites).
+* **Columns ($n$)**: Represent the "routes" (Reactions).
 
-### 1. The Stoichiometric Matrix ()
+The value in each cell $S_{ij}$ tells us the flow of inventory:
+* **$-1$**: The route **consumes** inventory from the warehouse.
+* **$+1$**: The route **delivers** inventory to the warehouse.
+* **$0$**: No interaction.
 
-Every chemical reaction in the fungus is mapped into a matrix  of size , where  is the number of metabolites and  is the number of reactions. This is the biological equivalent of a **Logistics Network Map**.
+### Step 2: The Steady State Assumption ($S \cdot v = 0$)
+In a stable supply chain, warehouses do not accumulate infinite stock, nor do they run empty. Everything that comes in must go out. Mathematically, this is the **Null Space** of the matrix:
 
-### 2. Steady-State Assumption
+$$S \cdot v = 0$$
 
-We assume the system is in a steady state, meaning the internal concentration of metabolites does not change over time:
+Where $v$ is the vector of fluxes (the speed of every reaction).
 
+### Step 3: Capacity Constraints ($LB \le v \le UB$)
+Just as a delivery truck has a maximum load and a factory has a maximum output, biological enzymes have physical limits. We define these as Lower Bounds ($LB$) and Upper Bounds ($UB$):
+$$0 \le v_{glucose\_intake} \le 10.0 \text{ mmol/gDW/h}$$
 
+### Step 4: The Objective Function (Maximize $Z$)
+We want to find the specific combination of reaction speeds ($v$) that yields the highest possible growth. This is a **Linear Optimization** problem:
 
-Where  is the vector of metabolic fluxes (the "speed" of the reactions).
+$$\text{Maximize } Z = c^T \cdot v$$
 
-### 3. Objective Function
+* **$c$**: A vector defining which reaction is our "Goal" (in this case, the Biomass reaction).
+* **$Z$**: The optimal growth rate.
 
-To find the most "profitable" growth strategy (similar to optimizing profit margins from 9% to 32% ), we maximize the objective function  (usually Biomass growth):
+---
 
+## 💻 Implementation
+The core logic is implemented in `model.py` using the **SciPy** library.
 
+### Key Libraries
+* `numpy`: For matrix operations ($S$ Matrix construction).
+* `scipy.optimize.linprog`: The solver engine used to perform the Linear Programming optimization (Simplex/Interior-Point methods).
 
-**Subject to:**
+### Code Structure
+1.  **Define Reactions:** Set up the 5 key steps of the metabolic supply chain (Import -> Metabolism -> Growth -> Waste).
+2.  **Build Matrix:** Construct the $4 \times 5$ stoichiometric matrix representing the connections between Glucose, Oxygen, Energy, and Biomass.
+3.  **Set Constraints:** Define the bounds to simulate environmental conditions (e.g., limited sugar availability).
+4.  **Solve:** Run the optimizer to find the "Winning Strategy" for the cell.
 
-* 
-*  (Lower and Upper bounds, representing physical "capacity" limits of the cell).
+---
 
-## 🛠️ Tech Stack & Implementation
+## 🚀 Future Roadmap: Integrating AI Transformers
+While this current model calculates the **static** optimal state, biological systems are dynamic. My research interest—and the focus of my PhD application—is to extend this framework using **Transformer-based Neural Networks**.
 
-* 
-**Language:** Python 
+* **Current State:** Linear Programming solves for $v$ at a single snapshot in time.
+* **Future State:** A Transformer model (Attention Mechanism) will ingest time-series data (Omics + Imaging) to **predict how the Constraints ($UB/LB$) change over time**, specifically predicting the onset of "C-variant" mutations in *Fusarium venenatum*.
 
+---
 
-* **Optimization:** `SciPy.optimize` and `COBRApy` for linear programming.
-* 
-**Analytics:** Implementation of data-driven decision-making frameworks I refined during my Google Data Analytics certification.
+## 🛠️ How to Run
+1.  Clone the repository:
+    ```bash
+    git clone [https://github.com/YourUsername/BioLogistics-Flux-Optimization.git](https://github.com/YourUsername/BioLogistics-Flux-Optimization.git)
+    ```
+2.  Install dependencies:
+    ```bash
+    pip install numpy scipy
+    ```
+3.  Run the simulation:
+    ```bash
+    python model.py
+    ```
 
+---
 
-
-## 🚀 Future Integration: The Transformer Layer
-
-While this model uses **Static Optimization**, the goal is to integrate **Transformer-based architectures**. My current research explores how the **Attention Mechanism** can predict changes in the bounds () over time, allowing the model to anticipate "C-variant" mutations before they cause crumbly textures and industrial waste.
-
+## 👨‍💻 Author
+**Amir Pazhooh** *Senior Product Manager & Tech Researcher* Applying data-driven industrial optimization strategies to biotechnology.
